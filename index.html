@@ -6,25 +6,41 @@
       <script src="/socket.io/socket.io.js"> </script>
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script type="text/javascript">
-
+        var socketId;
+        var color;
         var socket = io();
         socket.on("connected", function(data){
-            socket.emit("client-connected", data);
+            color = getRandomColor();
+            socket.emit("client-connected", {clientId: data.id, clientColor:color });
+            socketId = data.id
+
         });
 
         socket.on("messagesent", function(data){
             writeMessage(data);
         })
 
+        function getRandomColor() {
+              var letters = '0123456789ABCDEF'.split('');
+              var color = '#';
+              for (var i = 0; i < 6; i++ ) {
+                  color += letters[Math.floor(Math.random() * 16)];
+                  }
+              return color;
+        }
+
         var submitText = function(e){
-          writeMessage(e.value);
-          socket.emit("message", e.value);
+          var data = {message: e.value, clientId: socketId, clientColor: color};
+          writeMessage(data);
+          socket.emit("message", data);
           document.getElementById("messageInput").value = ""
         }
 
         var writeMessage = function(data){
-          var text = document.createTextNode(data);
+          var text = document.createTextNode(data.message);
           var el = document.createElement("li");
+          el.className = data.clientId;
+          el.style.color = data.clientColor;
           el.appendChild(text);
           var message = document.getElementById("messages");
 
