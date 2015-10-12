@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+      <script src="http://localhost:3000/socket.io/socket.io.js"> </script>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script type="text/javascript">
+
+        var socket = io();
+        socket.on("connected", function(data){
+            socket.emit("client-connected", data);
+        });
+
+        socket.on("messagesent", function(data){
+            writeMessage(data);
+        })
+
+        var submitText = function(e){
+          writeMessage(e.value);
+          socket.emit("message", e.value);
+          document.getElementById("messageInput").value = ""
+        }
+
+        var writeMessage = function(data){
+          var text = document.createTextNode(data);
+          var el = document.createElement("li");
+          el.appendChild(text);
+          var message = document.getElementById("messages");
+
+          message.appendChild(el);
+        }
+
+      </script>
+  </head>
+  <body>
+    <h2>Chat room</h2>
+    <ul id="messages">
+
+    </ul>
+    <textarea style="white-space: pre-wrap" id="messageInput" onkeydown="if (event.keyCode == 13 && !event.shiftKey) { submitText(this); return false; }"></textarea>
+
+
+  </body>
+</html>
